@@ -22,11 +22,11 @@ test:
 
 .PHONY: build
 build:
-	$(GOBUILD) -o $(BINARY_NAME) -v
+	$(GOBUILD) -o $(BINARY_NAME) -ldflags $(LDFLAGS) -v
 
 .PHONY: run
 run:
-	@ $(GOBUILD) -o $(BINARY_NAME) -v ./...
+	@ $(GOBUILD) -o $(BINARY_NAME) -ldflags $(LDFLAGS) -v ./...
 	@ ./$(BINARY_NAME)
 
 .PHONY: clean
