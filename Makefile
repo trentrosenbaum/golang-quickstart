@@ -13,6 +13,8 @@ VERSION=v0.0.1-SNAPSHOT
 LDFLAGS := "-X main.version=${VERSION}"
 DIST := $(CURDIR)/_dist
 
+OUPUT_FILES := $(BINARY_NAME) $(BINARY_NAME).exe $(DIST)
+
 # Tasks
 all: test build
 
@@ -31,10 +33,9 @@ run:
 
 .PHONY: clean
 clean:
-	$(GOCLEAN)
-	rm $(BINARY_NAME)
-	rm $(BINARY_NAME).exe
-	rm -rf $(DIST)
+ifneq ($(OUPUT_FILES),)
+	rm -rf $(OUPUT_FILES)
+endif
 
 .PHONY: dist
 dist:
