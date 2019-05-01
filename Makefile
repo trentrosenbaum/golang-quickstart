@@ -17,7 +17,7 @@ LDFLAGS := "-X main.version=${VERSION}"
 
 OUPUT_FILES := $(BIN) $(DIST)
 
-# Tasks
+# Recipe
 all: test build
 
 .PHONY: test
@@ -49,8 +49,12 @@ dist:
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o $(BIN)/$(BINARY_NAME).exe -ldflags $(LDFLAGS)
 	tar -zcvf $(DIST)/$(BINARY_NAME)-windows-$(VERSION).tgz README.md LICENSE.txt -C $(BIN) $(BINARY_NAME)
 
-.PHONY: bootstrap
-bootstrap:
+.PHONY: benchmark
+benchmark:
+	$(GOTEST) -bench -v ./...
+
+.PHONY: dependencies
+dependencies:
 ifndef HAS_DEP
 	wget -q -O $(GOPATH)/bin/dep https://github.com/golang/dep/releases/download/$(DEP_VERSION)/dep-darwin-amd64
 	chmod +x $(GOPATH)/bin/dep
