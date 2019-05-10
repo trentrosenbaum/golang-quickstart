@@ -13,7 +13,7 @@ DIST := $(CURDIR)/dist
 OUPUT_FILES := $(BIN) $(DIST)
 
 # Metadata about project provided through linker flags
-VERSION := "v1.0.0-SNAPSHOT"
+VERSION := "v0.1.0-SNAPSHOT"
 BUILD := `git rev-parse HEAD`
 LDFLAGS := -ldflags "-X=main.Version=$(VERSION) -X=main.Build=$(BUILD)"
 
