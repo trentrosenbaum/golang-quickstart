@@ -1,58 +1,78 @@
-# Go commands
-GOCMD=go
-GOBUILD=$(GOCMD) build
-GOCLEAN=$(GOCMD) clean
-GOTEST=$(GOCMD) test
-GOGET=$(GOCMD) get
+SHELL := /bin/bash
 
-DIST := $(CURDIR)/dist
-BIN := $(CURDIR)/bin
+# The name of the executable (default is current directory name)
+TARGET := $(shell echo $${PWD\#\#*/})
+.DEFAULT_GOAL := $(TARGET)
 
 HAS_DEP := $(shell command -v dep;)
 DEP_VERSION := v0.5.1
 
-BINARY_NAME=quickstart
-VERSION=v0.0.1-SNAPSHOT
-LDFLAGS := "-X main.version=${VERSION}"
+DIST := $(CURDIR)/dist
+OUPUT_FILES := $(DIST) $(TARGET)
 
-OUPUT_FILES := $(BIN) $(DIST)
+# These will be provided to the target
+VERSION := "v1.0.0-SNAPSHOT"
+BUILD := `git rev-parse HEAD`
 
-# Tasks
-all: test build
+# Use linker flags to provide version/build settings to the target
+LDFLAGS := -ldflags "-X=main.Version=$(VERSION) -X=main.Build=$(BUILD)"
 
-.PHONY: test
-test:
-	$(GOTEST) -v ./...
+# go source files, ignore vendor directory
+SRC := $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
-.PHONY: build
-build:
-	$(GOBUILD) -o $(BIN)/$(BINARY_NAME) -ldflags $(LDFLAGS) -v
+.PHONY: all build clean test install uninstall fmt simplify check run dist benchmark dependencies
 
-.PHONY: run
-run:
-	@ $(GOBUILD) -o $(BIN)/$(BINARY_NAME) -ldflags $(LDFLAGS) -v ./...
-	@ $(BIN)/$(BINARY_NAME)
+all: dependencies check test install
 
-.PHONY: clean
+$(TARGET): $(SRC)
+	@ go build $(LDFLAGS) -o $(TARGET)
+
+build: $(TARGET)
+	@ true
+
 clean:
 ifneq ($(OUPUT_FILES),)
 	rm -rf $(OUPUT_FILES)
 endif
 
-.PHONY: dist
-dist:
-	mkdir -p $(DIST)
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BIN)/$(BINARY_NAME) -ldflags $(LDFLAGS)
-	tar -zcvf $(DIST)/$(BINARY_NAME)-linux-$(VERSION).tgz README.md LICENSE.txt -C $(BIN) $(BINARY_NAME)
-	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o $(BIN)/$(BINARY_NAME) -ldflags $(LDFLAGS)
-	tar -zcvf $(DIST)/$(BINARY_NAME)-macos-$(VERSION).tgz README.md LICENSE.txt -C $(BIN) $(BINARY_NAME)
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o $(BIN)/$(BINARY_NAME).exe -ldflags $(LDFLAGS)
-	tar -zcvf $(DIST)/$(BINARY_NAME)-windows-$(VERSION).tgz README.md LICENSE.txt -C $(BIN) $(BINARY_NAME)
+test:
+	@ go test -v ./...
 
-.PHONY: bootstrap
-bootstrap:
+install:
+	@ go install $(LDFLAGS)
+
+uninstall: clean
+	rm -f $$(which ${TARGET})
+
+fmt:
+	@ gofmt -l -w $(SRC)
+
+simplify:
+	@ gofmt -s -l -w $(SRC)
+
+check:
+	@ test -z $(shell gofmt -l main.go | tee /dev/stderr) || echo "[WARN] Fix formatting issues with 'make fmt'"
+	@ for d in $$(go list ./... | grep -v /vendor/); do golint $${d}; done
+	@ go vet ${SRC}
+
+run: install
+	@ $(TARGET) ${ARGS}
+
+dist:
+	@ mkdir -p $(DIST)
+	@ CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(DIST)/$(TARGET) $(LDFLAGS)
+	tar -zcvf $(DIST)/$(TARGET)-linux-$(VERSION).tgz README.md LICENSE.txt -C $(DIST) $(TARGET)
+	@ CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o $(DIST)/$(TARGET) $(LDFLAGS)
+	tar -zcvf $(DIST)/$(TARGET)-macos-$(VERSION).tgz README.md LICENSE.txt -C $(DIST) $(TARGET)
+	@ CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o $(DIST)/$(TARGET).exe $(LDFLAGS)
+	tar -zcvf $(DIST)/$(TARGET)-windows-$(VERSION).tgz README.md LICENSE.txt -C $(DIST) $(TARGET).exe
+
+benchmark:
+	@ go test -bench -v ./...
+
+dependencies:
 ifndef HAS_DEP
 	wget -q -O $(GOPATH)/bin/dep https://github.com/golang/dep/releases/download/$(DEP_VERSION)/dep-darwin-amd64
 	chmod +x $(GOPATH)/bin/dep
 endif
-	dep ensure
+	@ dep ensure
