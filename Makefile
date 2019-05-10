@@ -11,8 +11,9 @@ BIN := $(CURDIR)/bin
 HAS_DEP := $(shell command -v dep;)
 DEP_VERSION := v0.5.1
 
-BINARY_NAME=quickstart
+BINARY_NAME=$(notdir $(CURDIR))
 VERSION=v0.0.1-SNAPSHOT
+
 LDFLAGS := "-X main.version=${VERSION}"
 
 OUPUT_FILES := $(BIN) $(DIST)
@@ -30,7 +31,7 @@ build:
 
 .PHONY: run
 run:
-	@ $(GOBUILD) -o $(BIN)/$(BINARY_NAME) -ldflags $(LDFLAGS) -v ./...
+	@ $(GOBUILD) -o $(BIN)/$(BINARY_NAME) -ldflags $(LDFLAGS) -v main.go
 	@ $(BIN)/$(BINARY_NAME)
 
 .PHONY: clean
