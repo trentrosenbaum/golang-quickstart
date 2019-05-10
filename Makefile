@@ -8,7 +8,8 @@ HAS_DEP := $(shell command -v dep;)
 DEP_VERSION := v0.5.1
 
 DIST := $(CURDIR)/dist
-OUPUT_FILES := $(DIST) $(TARGET)
+BIN := $(CURDIR)/bin
+OUPUT_FILES := $(DIST) $(BIN)
 
 # These will be provided to the target
 VERSION := "v1.0.0-SNAPSHOT"
@@ -25,7 +26,8 @@ SRC := $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 all: dependencies check test install
 
 $(TARGET): $(SRC)
-	go build $(LDFLAGS) -o $(TARGET)
+	@ mkdir -p $(BIN)
+	@ go build $(LDFLAGS) -o $(BIN)/$(TARGET) main.go
 
 build: $(TARGET)
 	@ true
@@ -58,19 +60,20 @@ check:
 	@ echo "==> Checking $(TARGET)"
 	@ test -z $(shell gofmt -l main.go | tee /dev/stderr) || echo "[WARN] Fix formatting issues with 'make fmt'"
 	@ for d in $$(go list ./... | grep -v /vendor/); do golint $${d}; done
-	@ go vet ${SRC}
+	@ go vet ./...
 
 run: install
 	@ $(TARGET) ${ARGS}
 
 dist:
+	@ mkdir -p $(BIN)
 	@ mkdir -p $(DIST)
-	@ CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(DIST)/$(TARGET) $(LDFLAGS)
-	tar -zcvf $(DIST)/$(TARGET)-linux-$(VERSION).tgz README.md LICENSE.txt -C $(DIST) $(TARGET)
-	@ CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o $(DIST)/$(TARGET) $(LDFLAGS)
-	tar -zcvf $(DIST)/$(TARGET)-macos-$(VERSION).tgz README.md LICENSE.txt -C $(DIST) $(TARGET)
-	@ CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o $(DIST)/$(TARGET).exe $(LDFLAGS)
-	tar -zcvf $(DIST)/$(TARGET)-windows-$(VERSION).tgz README.md LICENSE.txt -C $(DIST) $(TARGET).exe
+	@ CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o $(BIN)/$(TARGET)
+	tar -zcvf $(DIST)/$(TARGET)-linux-$(VERSION).tgz README.md LICENSE.txt -C $(BIN) $(TARGET)
+	@ CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -o $(BIN)/$(TARGET)
+	tar -zcvf $(DIST)/$(TARGET)-macos-$(VERSION).tgz README.md LICENSE.txt -C $(BIN) $(TARGET)
+	@ CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o $(BIN)/$(TARGET).exe
+	tar -zcvf $(DIST)/$(TARGET)-windows-$(VERSION).tgz README.md LICENSE.txt -C $(BIN) $(TARGET).exe
 
 benchmark:
 	@ echo "==> Benchmarking $(TARGET)"
