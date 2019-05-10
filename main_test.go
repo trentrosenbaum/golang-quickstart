@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"testing"
@@ -35,7 +36,6 @@ func (suite *GreetingTestSuite) TestSayingHello() {
 	expected := fmt.Sprintf("Hello %s!", name)
 
 	assert.Equal(suite.T(), expected, result)
-
 }
 
 func TestGreetingTestSuite(t *testing.T) {
