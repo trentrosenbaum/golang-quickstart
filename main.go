@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-var Version string
-var Build string
+var version string
+var build string
 
 func greeting(name string) (result string) {
 	result = fmt.Sprintf("Hello %s!", name)
@@ -20,11 +20,11 @@ func main() {
 	flag.Parse()
 
 	if *verisonPtr {
-		fmt.Printf("Version: %s\n", Version)
+		fmt.Printf("Version: %s\n", version)
 	}
 
 	if *buildPtr {
-		fmt.Printf("Build: %s\n", Build)
+		fmt.Printf("Build: %s\n", build)
 	}
 
 	message := greeting("World")
