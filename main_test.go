@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"testing"
-
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"testing"
 )
 
 type GreetingTestSuite struct {
@@ -17,7 +17,7 @@ func (suite *GreetingTestSuite) SetupTest() {
 	suite.Name = "John"
 }
 
-func (suite *GreetingTestSuite) TearDown() {
+func (suite *GreetingTestSuite) TearDownTest() {
 	fmt.Println("Executing TearDown.")
 }
 
@@ -32,7 +32,9 @@ func (suite *GreetingTestSuite) TestSayingHello() {
 	result := greeting(name)
 
 	// Then
-	suite.Equal(fmt.Sprintf("Hello %s!", name), result, "Greeting was not correct.")
+	expected := fmt.Sprintf("Hello %s!", name)
+
+	assert.Equal(suite.T(), expected, result)
 
 }
 
