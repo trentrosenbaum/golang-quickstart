@@ -13,6 +13,11 @@ BIN := $(CURDIR)/bin
 DIST := $(CURDIR)/dist
 OUPUT_FILES := $(BIN) $(DIST)
 
+PLATFORMS := darwin linux windows
+OS = $(word 1, $@)
+ARCH := amd64
+
+
 # Metadata about project provided through linker flags
 VERSION ?= "vlocal"
 COMMIT=$(shell git rev-parse HEAD)
@@ -23,7 +28,7 @@ LDFLAGS := -ldflags "-X=main.version=$(VERSION) -X=main.commit=$(COMMIT) -X=main
 # Go source files, excluding vendor directory
 SRC := $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
-.PHONY: all build clean test install uninstall fmt simplify check run dist benchmark dependencies
+.PHONY: all build clean test install uninstall fmt simplify check run dist benchmark dependencies $(PLATFORMS)
 
 all: dependencies check test install
 
@@ -72,21 +77,15 @@ check:
 run: install
 	@ $(TARGET) ${ARGS}
 
-dist:
-	@ mkdir -p $(BIN)
+$(PLATFORMS):
+	@ echo "==> Building $(OS) distribution"
+
+	@ mkdir -p $(BIN)/$(OS)/$(ARCH)
 	@ mkdir -p $(DIST)
+	CGO_ENABLED=0 GOOS=$(OS) GOARCH=$(ARCH) go build $(LDFLAGS) -o $(BIN)/$(OS)/$(ARCH)/$(TARGET)
+	tar -zcvf $(DIST)/$(TARGET)-$(VERSION)-$(OS).tgz README.md LICENSE.txt -C $(BIN)/$(OS)/$(ARCH) $(TARGET)
 
-	@ echo "==> Building Linux distribution"
-	@ CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o $(BIN)/$(TARGET)
-	tar -zcvf $(DIST)/$(TARGET)-linux-$(VERSION).tgz README.md LICENSE.txt -C $(BIN) $(TARGET)
-
-	@ echo "==> Building MaxOS distribution"
-	@ CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -o $(BIN)/$(TARGET)
-	tar -zcvf $(DIST)/$(TARGET)-macos-$(VERSION).tgz README.md LICENSE.txt -C $(BIN) $(TARGET)
-
-	@ echo "==> Building Windows distribution"
-	@ CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o $(BIN)/$(TARGET).exe
-	tar -zcvf $(DIST)/$(TARGET)-windows-$(VERSION).tgz README.md LICENSE.txt -C $(BIN) $(TARGET).exe
+dist: windows linux darwin
 
 benchmark:
 	@ echo "==> Benchmarking $(TARGET)"
