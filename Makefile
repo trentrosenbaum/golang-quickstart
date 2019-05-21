@@ -4,8 +4,9 @@ SHELL := /bin/bash
 TARGET := $(shell echo $${PWD\#\#*/})
 .DEFAULT_GOAL := $(TARGET)
 
-HAS_DEP := $(shell command -v dep;)
 DEP_VERSION := 0.5.2
+DEP_TOOL := $(GOBIN)/dep
+VENDOR := $(CURDIR)/vendor
 
 # Output directories for binaries and distributions.
 BIN := $(CURDIR)/bin
@@ -13,16 +14,18 @@ DIST := $(CURDIR)/dist
 OUPUT_FILES := $(BIN) $(DIST)
 
 # Metadata about project provided through linker flags
-VERSION := "v0.1.0-SNAPSHOT"
-BUILD := `git rev-parse HEAD`
-LDFLAGS := -ldflags "-X=main.Version=$(VERSION) -X=main.Build=$(BUILD)"
+VERSION ?= "vlocal"
+COMMIT=$(shell git rev-parse HEAD)
+BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
+
+LDFLAGS := -ldflags "-X=main.version=$(VERSION) -X=main.commit=$(COMMIT) -X=main.branch=$(BRANCH)"
 
 # Go source files, excluding vendor directory
 SRC := $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
-.PHONY: all build clean test install uninstall fmt simplify check run dist benchmark deps
+.PHONY: all build clean test install uninstall fmt simplify check run dist benchmark dependencies
 
-all: deps check test install
+all: dependencies check test install
 
 $(TARGET): $(SRC)
 	@ mkdir -p $(BIN)
@@ -62,7 +65,7 @@ simplify:
 check:
 	@ echo "==> Checking $(TARGET)"
 
-	@ test -z $(shell gofmt -l main.go | tee /dev/stderr) || echo "[WARN] Fix formatting issues with 'make fmt'"
+	@ test -z $$(gofmt -l . | tee /dev/stderr) || echo "[WARN] Fix formatting issues with 'make fmt'"
 	@ for d in $$(go list ./... | grep -v /vendor/); do golint $${d}; done
 	@ go vet ./...
 
@@ -89,13 +92,18 @@ benchmark:
 	@ echo "==> Benchmarking $(TARGET)"
 	@ go test -bench -v ./...
 
-deps:
-ifndef HAS_DEP
-	@ echo "==> Installing dep"
+$(DEP_TOOL):
+	@ echo "==> Installing dep tool"
 
-	wget -q -O $(GOPATH)/bin/dep https://github.com/golang/dep/releases/download/$(DEP_VERSION)/dep-darwin-amd64
-	chmod +x $(GOPATH)/bin/dep
-endif
+	wget -q -O $(DEP_TOOL) https://github.com/golang/dep/releases/download/$(DEP_VERSION)/dep-darwin-amd64
+	chmod +x $(DEP_TOOL)
+
+dependencies: $(DEP_TOOL)
 	@ echo "==> Downloading dependencies for $(TARGET)"
 
 	@ dep ensure
+
+clean-dependencies:
+	@ echo "==> Cleaning dependencies for $(TARGET)"
+
+	rm -rf $(VENDOR)

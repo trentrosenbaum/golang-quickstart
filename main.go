@@ -6,7 +6,8 @@ import (
 )
 
 var version string
-var build string
+var commit string
+var branch string
 
 func greeting(name string) (result string) {
 	result = fmt.Sprintf("Hello %s!", name)
@@ -16,15 +17,13 @@ func greeting(name string) (result string) {
 func main() {
 
 	verisonPtr := flag.Bool("version", false, "Prints the version")
-	buildPtr := flag.Bool("build", false, "Prints the build")
+
 	flag.Parse()
 
 	if *verisonPtr {
 		fmt.Printf("Version: %s\n", version)
-	}
-
-	if *buildPtr {
-		fmt.Printf("Build: %s\n", build)
+		fmt.Printf("Commit: %s\n", commit)
+		fmt.Printf("Branch: %s\n", branch)
 	}
 
 	message := greeting("World")
