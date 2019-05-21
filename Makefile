@@ -13,9 +13,9 @@ BIN := $(CURDIR)/bin
 DIST := $(CURDIR)/dist
 OUPUT_FILES := $(BIN) $(DIST)
 
-PLATFORMS := darwin linux windows
+PLATFORMS ?= darwin linux windows
+ARCH ?= amd64
 OS = $(word 1, $@)
-ARCH := amd64
 
 
 # Metadata about project provided through linker flags
@@ -85,7 +85,7 @@ $(PLATFORMS):
 	CGO_ENABLED=0 GOOS=$(OS) GOARCH=$(ARCH) go build $(LDFLAGS) -o $(BIN)/$(OS)/$(ARCH)/$(TARGET)
 	tar -zcvf $(DIST)/$(TARGET)-$(VERSION)-$(OS).tgz README.md LICENSE.txt -C $(BIN)/$(OS)/$(ARCH) $(TARGET)
 
-dist: windows linux darwin
+dist: $(PLATFORMS)
 
 benchmark:
 	@ echo "==> Benchmarking $(TARGET)"
