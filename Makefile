@@ -30,35 +30,31 @@ SRC := $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 .PHONY: all build clean test install uninstall fmt simplify check run dist benchmark dependencies $(PLATFORMS)
 
-all: dependencies check test install
+all: dependencies check test build
 
 $(TARGET): $(SRC)
 	@ mkdir -p $(BIN)
 	@ go build $(LDFLAGS) -o $(BIN)/$(TARGET) main.go
 
 build: $(TARGET)
-	@ true
+	@ echo "==> Building $(TARGET)"
 
 clean:
 	@ echo "==> Cleaning output files."
-
 ifneq ($(OUPUT_FILES),)
 	rm -rf $(OUPUT_FILES)
 endif
 
 test:
 	@ echo "==> Testing $(TARGET)"
-
 	@ go test -v ./...
 
 install:
 	@ echo "==> Installing $(TARGET)"
-
 	@ go install $(LDFLAGS)
 
 uninstall: clean
 	@ echo "==> Uninstalling $(TARGET)"
-
 	rm -f $$(which ${TARGET})
 
 fmt:
@@ -69,7 +65,6 @@ simplify:
 
 check:
 	@ echo "==> Checking $(TARGET)"
-
 	@ test -z $$(gofmt -l . | tee /dev/stderr) || echo "[WARN] Fix formatting issues with 'make fmt'"
 	@ for d in $$(go list ./... | grep -v /vendor/); do golint $${d}; done
 	@ go vet ./...
@@ -79,13 +74,13 @@ run: install
 
 $(PLATFORMS):
 	@ echo "==> Building $(OS) distribution"
-
 	@ mkdir -p $(BIN)/$(OS)/$(ARCH)
 	@ mkdir -p $(DIST)
 	CGO_ENABLED=0 GOOS=$(OS) GOARCH=$(ARCH) go build $(LDFLAGS) -o $(BIN)/$(OS)/$(ARCH)/$(TARGET)
 	tar -zcvf $(DIST)/$(TARGET)-$(VERSION)-$(OS).tgz README.md LICENSE.txt -C $(BIN)/$(OS)/$(ARCH) $(TARGET)
 
 dist: $(PLATFORMS)
+	@ true
 
 benchmark:
 	@ echo "==> Benchmarking $(TARGET)"
@@ -93,16 +88,13 @@ benchmark:
 
 $(DEP_TOOL):
 	@ echo "==> Installing dep tool"
-
 	wget -q -O $(DEP_TOOL) https://github.com/golang/dep/releases/download/$(DEP_VERSION)/dep-darwin-amd64
 	chmod +x $(DEP_TOOL)
 
 dependencies: $(DEP_TOOL)
 	@ echo "==> Downloading dependencies for $(TARGET)"
-
 	@ dep ensure
 
 clean-dependencies:
 	@ echo "==> Cleaning dependencies for $(TARGET)"
-
 	rm -rf $(VENDOR)

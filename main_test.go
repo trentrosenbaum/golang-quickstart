@@ -14,12 +14,12 @@ type GreetingTestSuite struct {
 }
 
 func (suite *GreetingTestSuite) SetupTest() {
-	fmt.Println("Executing Setup.")
+	//fmt.Println("Executing Setup.")
 	suite.Name = "John"
 }
 
 func (suite *GreetingTestSuite) TearDownTest() {
-	fmt.Println("Executing TearDown.")
+	//fmt.Println("Executing TearDown.")
 }
 
 //  test functions
