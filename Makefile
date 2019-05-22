@@ -34,7 +34,7 @@ all: dependencies check test build
 
 $(TARGET): $(SRC)
 	@ mkdir -p $(BIN)
-	@ go build $(LDFLAGS) -o $(BIN)/$(TARGET) main.go
+	@ go build $(LDFLAGS) -o $(BIN)/$(TARGET) .
 
 build: $(TARGET)
 	@ echo "==> Building $(TARGET)"
