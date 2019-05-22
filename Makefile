@@ -65,7 +65,7 @@ simplify:
 
 check:
 	@ echo "==> Checking $(TARGET)"
-	@ test -z $$(gofmt -l . | tee /dev/stderr) || echo "[WARN] Fix formatting issues with 'make fmt'"
+	@ gofmt -l -s $(SRC) | read; if [ $$? == 0 ]; then echo "[WARN] Fix formatting issues with 'make fmt'"; exit 1; fi
 	@ for d in $$(go list ./... | grep -v /vendor/); do golint $${d}; done
 	@ go vet ./...
 
