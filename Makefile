@@ -6,6 +6,9 @@ TARGET := $(shell echo $${PWD\#\#*/})
 
 VENDOR := $(CURDIR)/vendor
 
+# Tags specific for building
+GOTAGS ?=
+
 # Output directories for binaries and distributions.
 BIN := $(CURDIR)/bin
 DIST := $(CURDIR)/dist
@@ -45,8 +48,13 @@ endif
 
 test:
 	@ echo "==> Testing $(TARGET)"
-	@ go test -v ./...
+	@ go test -v -timeout=30s -tags="${GOTAGS}" ./...
 .PHONY: test
+
+test-race:
+	@ echo "==> Testing $(TARGET)"
+	@ go test -v -race -timeout=60s -tags="${GOTAGS}" ./...
+.PHONY: test-race
 
 install:
 	@ echo "==> Installing $(TARGET)"
