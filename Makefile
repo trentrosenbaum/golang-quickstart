@@ -17,8 +17,8 @@ OS = $(word 1, $@)
 
 # Metadata about project provided through linker flags
 VERSION ?= "vlocal"
-COMMIT=$(shell git rev-parse HEAD)
-BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
+COMMIT = $(shell git rev-parse HEAD)
+BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 
 LDFLAGS := -ldflags "-X=main.version=$(VERSION) -X=main.commit=$(COMMIT) -X=main.branch=$(BRANCH)"
 
