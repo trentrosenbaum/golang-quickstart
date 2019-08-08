@@ -1,0 +1,16 @@
+language: go
+sudo: false
+go:
+  - 1.10.x
+  - 1.11.x
+  - 1.12.x
+matrix:
+  allow_failures:
+    - go: tip
+script:
+  - make check
+  - make test
+  - make test-race
+after_success:
+  - make darwin
+  - make linux
