@@ -4,6 +4,8 @@ SHELL := /bin/bash
 TARGET := $(shell echo $${PWD\#\#*/})
 .DEFAULT_GOAL := $(TARGET)
 
+HAS_GOLINT := $(shell command -v golint;)
+
 VENDOR := $(CURDIR)/vendor
 
 # Tags specific for building
@@ -45,6 +47,13 @@ ifneq ($(OUPUT_FILES),)
 	rm -rf $(OUPUT_FILES)
 endif
 .PHONY: clean
+
+bootstrap:
+ifndef HAS_GOLINT
+	go get -u golang.org/x/lint/golint
+	chmod +x $(GOPATH)/bin/golint
+endif
+.PHONY: bootstrap
 
 test:
 	@ echo "==> Testing $(TARGET)"

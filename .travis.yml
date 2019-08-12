@@ -8,6 +8,7 @@ matrix:
   allow_failures:
     - go: tip
 script:
+  - make bootstrap
   - make dependencies
   - make check
   - make test
