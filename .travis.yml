@@ -1,5 +1,7 @@
 language: go
 sudo: false
+env:
+  - VERSION=$TRAVIS_TAG
 go:
   - 1.11.x
   - 1.12.x
