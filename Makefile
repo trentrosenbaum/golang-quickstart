@@ -4,6 +4,8 @@ SHELL := /bin/bash
 TARGET := $(shell echo $${PWD\#\#*/})
 .DEFAULT_GOAL := $(TARGET)
 
+HAS_GOLINT := $(shell command -v golint;)
+
 VENDOR := $(CURDIR)/vendor
 
 # Tags specific for building
@@ -33,7 +35,7 @@ all: dependencies check test build
 
 $(TARGET): $(SRC)
 	@ mkdir -p $(BIN)
-	@ go build $(LDFLAGS) -o $(BIN)/$(TARGET) .
+	@ GO111MODULE=on go build $(LDFLAGS) -o $(BIN)/$(TARGET) .
 
 build: $(TARGET)
 	@ echo "==> Building $(TARGET)"
@@ -46,19 +48,26 @@ ifneq ($(OUPUT_FILES),)
 endif
 .PHONY: clean
 
+bootstrap:
+ifndef HAS_GOLINT
+	go get -u golang.org/x/lint/golint
+	chmod +x $(GOPATH)/bin/golint
+endif
+.PHONY: bootstrap
+
 test:
 	@ echo "==> Testing $(TARGET)"
-	@ go test -v -timeout=30s -tags="${GOTAGS}" ./...
+	@ GO111MODULE=on go test -v -timeout=30s -tags="${GOTAGS}" ./...
 .PHONY: test
 
 test-race:
 	@ echo "==> Testing $(TARGET)"
-	@ go test -v -race -timeout=60s -tags="${GOTAGS}" ./...
+	@ GO111MODULE=on go test -v -race -timeout=60s -tags="${GOTAGS}" ./...
 .PHONY: test-race
 
 install:
 	@ echo "==> Installing $(TARGET)"
-	@ go install $(LDFLAGS)
+	@ GO111MODULE=on go install $(LDFLAGS)
 .PHONY: install
 
 uninstall: clean
@@ -78,7 +87,7 @@ check:
 	@ echo "==> Checking $(TARGET)"
 	@ gofmt -l -s $(SRC) | read; if [ $$? == 0 ]; then echo "[WARN] Fix formatting issues with 'make fmt'"; exit 1; fi
 	@ for d in $$(go list ./... | grep -v /vendor/); do golint $${d}; done
-	@ go vet ./...
+	@ GO111MODULE=on go vet ./...
 .PHONY: check
 
 run: install
@@ -89,8 +98,8 @@ $(PLATFORMS):
 	@ echo "==> Building $(OS) distribution"
 	@ mkdir -p $(BIN)/$(OS)/$(ARCH)
 	@ mkdir -p $(DIST)
-	CGO_ENABLED=0 GOOS=$(OS) GOARCH=$(ARCH) go build $(LDFLAGS) -o $(BIN)/$(OS)/$(ARCH)/$(TARGET)
-	tar -zcvf $(DIST)/$(TARGET)-$(VERSION)-$(OS).tgz README.md LICENSE.txt -C $(BIN)/$(OS)/$(ARCH) $(TARGET)
+	GO111MODULE=on CGO_ENABLED=0 GOOS=$(OS) GOARCH=$(ARCH) go build $(LDFLAGS) -o $(BIN)/$(OS)/$(ARCH)/$(TARGET)
+	tar -zcvf $(DIST)/$(TARGET)-$(VERSION)-$(OS)-$(ARCH).tgz README.md LICENSE.txt -C $(BIN)/$(OS)/$(ARCH) $(TARGET)
 .PHONY: $(PLATFORMS)
 
 dist: $(PLATFORMS)
@@ -99,7 +108,7 @@ dist: $(PLATFORMS)
 
 benchmark:
 	@ echo "==> Benchmarking $(TARGET)"
-	@ go test -bench -v ./...
+	@ GO111MODULE=on go test -bench -v ./...
 .PHONY: benchmark
 
 dependencies:
