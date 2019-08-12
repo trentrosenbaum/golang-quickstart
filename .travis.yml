@@ -1,7 +1,7 @@
 language: go
 sudo: false
 env:
-  - VERSION=${TRAVIS_TAG:"vsnapshot"}
+  - VERSION=${TRAVIS_TAG:-vsnapshot}
 go:
 - 1.11.x
 - 1.12.x
