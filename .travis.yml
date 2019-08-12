@@ -22,9 +22,10 @@ deploy:
   api_key:
     secure: rPrnvrxYlst3tA2cdFO6DxRUKzSSRpgBOtsdy/3DDkw0X+liWyxR6Ni5joQ+mlM37skz7a79cHooQnx5a54cbyEMioR1il9J8G/foto25UJK91UxwHTlTcrCGCD6pZkpfF+w5p0SvcfAfJfBV2brg4ESWSlEqqG9mLgKIRh4T3X/qMp2Vf7SdCGWVu075tW25GmMjD5ekY9Age6HrCOU7d89DaUQnbJbCYcg33uVoioSw2dqGw0nuwLQOD3pfZg7SOsNTrni1T1O1wSJGj2PaU4eG06Iu1nnRmoIZY9R29zwrvBXyRy+Dx4fArdT+DvmQKapfMY23756r0dBI7BVnXZ2cF5NUn8GXsVKDk8oXJDTvbSdiUmNkjWd6nkgjCZHoVmXnZaU+JEqU4ZXAFm4GaLM3ii1nDH9kt4mpMeHQZWb4djRRL+NOLlFAZYliv2aK+WCAGZJUbN72AJki4nYWkcWD9xjW9+Pcoy6eZK7eWvsJKhGYVP1U1nYgDPHQ+e8DrGKPZHUZaFFC0VaO/GAoVfUo7Pkb0+2nmtdjmPOTcQBJaNkCvNwtWOEA6Cf82LYH2epVso2kdhaIezGiyt1Tw7j7CX0cBgDcE0XEQyLU05tE3e8CYlmeqmRk9D2t26GhIsyYmQcBCpoZ4prPUtbp6tfNphtGIzlwepe2kt7Dm0=
   file:
-    - golang-quickstart-$VERSION-darwin-amd64.tgz
-    - golang-quickstart-$VERSION-linux-amd64.tgz
+    - dist/golang-quickstart-$VERSION-darwin-amd64.tgz
+    - dist/golang-quickstart-$VERSION-linux-amd64.tgz
   skip_cleanup: true
   on:
     repo: trentrosenbaum/golang-quickstart
     tags: true
+    condition: $TRAVIS_GO_VERSION =~ ^1\.12
