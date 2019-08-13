@@ -110,3 +110,25 @@ The following is a brief list of additional targets that can be executed against
   * Executes any benchmark tests against the project.
 * `make check`
   * Executes `go fmt` and `golint` against the project.
+  
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to the project.
+
+## Versioning
+
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+
+## Authors
+
+* **Trent Rosenbaum** - *Initial work* - [trentrosenbaum](https://github.com/trentrosenbaum)
+
+See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+
+## License
+
+This project is licensed under the ? License - see the [LICENSE.md](LICENSE.md) file for details
+
+## Acknowledgments
+
+* List any people or projects that have inspiration this project

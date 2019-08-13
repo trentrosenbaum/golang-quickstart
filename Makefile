@@ -99,7 +99,7 @@ $(PLATFORMS):
 	@ mkdir -p $(BIN)/$(OS)/$(ARCH)
 	@ mkdir -p $(DIST)
 	CGO_ENABLED=0 GOOS=$(OS) GOARCH=$(ARCH) go build $(LDFLAGS) -o $(BIN)/$(OS)/$(ARCH)/$(TARGET)
-	tar -zcvf $(DIST)/$(TARGET)-$(VERSION)-$(OS)-$(ARCH).tgz README.md LICENSE.txt -C $(BIN)/$(OS)/$(ARCH) $(TARGET)
+	tar -zcvf $(DIST)/$(TARGET)-$(VERSION)-$(OS)-$(ARCH).tgz README.md LICENSE.md -C $(BIN)/$(OS)/$(ARCH) $(TARGET)
 .PHONY: $(PLATFORMS)
 
 dist: $(PLATFORMS)
