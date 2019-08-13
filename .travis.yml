@@ -24,6 +24,7 @@ deploy:
   file:
     - dist/golang-quickstart-$VERSION-darwin-amd64.tgz
     - dist/golang-quickstart-$VERSION-linux-amd64.tgz
+    - dist/golang-quickstart-$VERSION-windows-amd64.tgz
   skip_cleanup: true
   on:
     repo: trentrosenbaum/golang-quickstart
