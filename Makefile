@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 # The name of the binary (default is current directory name)
-TARGET := $(shell echo $${PWD\#\#*/})
+TARGET ?= $(shell echo $${PWD\#\#*/})
 .DEFAULT_GOAL := $(TARGET)
 
 HAS_GOLINT := $(shell command -v golint;)
