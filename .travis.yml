@@ -1,23 +1,24 @@
 language: go
 sudo: false
 env:
-  - GO111MODULE=on
-  - VERSION=${TRAVIS_TAG:-vsnapshot}
+  global:
+    - GO111MODULE=on
+    - VERSION=${TRAVIS_TAG:-vsnapshot}
 go:
-- 1.11.x
-- 1.12.x
+  - 1.11.x
+  - 1.12.x
 matrix:
   allow_failures:
-  - go: tip
+    - go: tip
 script:
-- make bootstrap
-- make dependencies
-- make check
-- make test
-- make test-race
+  - make bootstrap
+  - make dependencies
+  - make check
+  - make test
+  - make test-race
 after_success:
-- make darwin
-- make linux
+  - make darwin
+  - make linux
 deploy:
   provider: releases
   api_key:
